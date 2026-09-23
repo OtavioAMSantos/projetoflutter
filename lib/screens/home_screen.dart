@@ -115,6 +115,41 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   } //fim da função salvar dados
 
+  void _abrirModalExclusao(ProdutoModel produto) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Excluir produto"),
+          content: Text("Deseja realmente excluir o produto ${produto.nome}?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancelar"),
+            ),
+            TextButton(
+              onPressed: () {
+                deletarProduto(produto.id!);
+                Navigator.pop(context);
+              },
+              child: Text("Excluir"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void deletarProduto(int id) async {
+    bool deletou = await ProdutoBanco().deletarProduto(id);
+    if (deletou) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Produto deletado com sucesso!")));
+      _carregarLista();
+    }
+  }
+
   //============================================
   @override
   Widget build(BuildContext context) {
@@ -138,6 +173,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   IconButton(
                     onPressed: () => abrirFormulario(item),
                     icon: Icon(Icons.edit),
+                  ),
+                  IconButton(
+                    onPressed: () => _abrirModalExclusao(item),
+                    icon: Icon(Icons.delete, color: Colors.red),
                   ),
                 ],
               ),
