@@ -92,7 +92,13 @@ class _HomeScreenState extends State<HomeScreen> {
   } //fim da função abrir formulario
 
   void _salvarDados(ProdutoModel produto) async {
-    bool salvou = await ProdutoBanco().inserirProduto(produto);
+    bool modoCadastro = produto.id == null;
+    bool salvou = false;
+    if (modoCadastro) {
+      salvou = await ProdutoBanco().inserirProduto(produto);
+    } else {
+      salvou = await ProdutoBanco().atualizarProduto(produto);
+    }
     if (salvou) {
       //fecha modal formulario
       Navigator.of(context).pop();
@@ -103,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
       //abre a modal de avisos
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Produto salvo!"),
+          content: Text(modoCadastro ? "Produto salvo!" : "Produto atualizado!"),
         ),
       );
     }
@@ -126,6 +132,15 @@ class _HomeScreenState extends State<HomeScreen> {
             child: ListTile(
               title: Text(item.nome),
               subtitle: Text('${item.categoria} - ${item.descricao}\nR\$ ${item.valor.toStringAsFixed(2)}'),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () => abrirFormulario(item),
+                    icon: Icon(Icons.edit),
+                  ),
+                ],
+              ),
               leading: CircleAvatar(child: Icon(Icons.shopping_bag)),
             ),
           );
